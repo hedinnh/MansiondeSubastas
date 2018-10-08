@@ -50,8 +50,8 @@ const auctionService = () => {
         // Your implementation goes here
     };
 
-    const placeNewBid = (auctionId, customerId, price) => {
-        let auction = getAuctionById(auctionId);
+    const placeNewBid = async (auctionId, customerId, price) => {
+        let auction = await getAuctionById(auctionId);
         let currentBid = 0;
         Auction.find({}).exec(function (err, docs) {
             docs.forEach(function (doc) {
@@ -65,7 +65,10 @@ const auctionService = () => {
                 })
             })
         })
-        if (currentBid >= auction.minimumPrice && price >= currentBid && auction.auctionWinner !== undefined) {
+        console.log(price, 'price')
+        console.log(auction.minimumPrice, 'auction min price')
+        console.log(currentBid, 'currentbid')
+        if (currentBid > auction.minimumPrice && price > currentBid && auction.auctionWinner !== undefined) {
             AuctionBid.create({
                 auctionId: auctionId,
                 customerId: customerId,
@@ -75,6 +78,7 @@ const auctionService = () => {
                 console.log('New Bid add ok (not first bid)');
             });
         } else if (price <= auction.minimumPrice || price <= currentBid) {
+            console.log('in else if')
             return -1
         }
         if (auction.auctionWinner === undefined) {

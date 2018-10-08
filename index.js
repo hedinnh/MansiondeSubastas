@@ -88,7 +88,7 @@ router.post('/auctions/:id/bids', async (req, res) => {
     const { id } = req.params;
     const price  = body.price;
     const customerId = body.customerId;
-    let ret = auctionService.placeNewBid(id, customerId, price);
+    let ret = await auctionService.placeNewBid(id, customerId, price);
     if(ret === -1) {
         return res.status(412).send();
     }
