@@ -4,9 +4,10 @@ const artistSchema = require('../schemas/artist');
 const auctionSchema = require('../schemas/auction');
 const auctionBidSchema = require('../schemas/auctionBid');
 const customerSchema = require('../schemas/customer');
-const orderSchema = require('../schemas/order');
 
-const connection = mongoose.createConnection('insert-your-mongodb-connection-string-here', { useNewUrlParser: true });
+const connection = mongoose.createConnection('mongodb://hedinn:b00mb00m.123@ds029585.mlab.com:29585/mansion', { useNewUrlParser: true }, () => {
+    console.log('Connected to mongo db server');
+});
 
 module.exports = {
     Art: connection.model('Art', artSchema),
@@ -14,5 +15,5 @@ module.exports = {
     Auction: connection.model('Auction', auctionSchema),
     AuctionBid: connection.model('AuctionBid', auctionBidSchema),
     Customer: connection.model('Customer', customerSchema),
-    Order: connection.model('Order', orderSchema)
+    connection
 };
