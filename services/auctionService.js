@@ -53,8 +53,8 @@ const auctionService = () => {
     const placeNewBid = async (auctionId, customerId, price) => {
         let auction = await getAuctionById(auctionId);
         let currentBid = 0;
-        Auction.find({}).exec(function (err, docs) {
-            docs.forEach(function (doc) {
+        await Auction.find({}).exec(function (err, docs) {
+           docs.forEach(function (doc) {
                 AuctionBid.find({}).exec(function (err, bids) {
                     bids.forEach(function (bid) {
                         if (currentBid <= bid.price && auctionId === doc.id) {
@@ -65,9 +65,10 @@ const auctionService = () => {
                 })
             })
         })
+        setTimeout(() => console.log(currentBid), 3000);
         console.log(price, 'price')
         console.log(auction.minimumPrice, 'auction min price')
-        console.log(currentBid, 'currentbid')
+        console.log(currentBid, 'currentbid') // WHY THE FUCK IS THIS STILL 0 :D 
         if (currentBid > auction.minimumPrice && price > currentBid && auction.auctionWinner !== undefined) {
             AuctionBid.create({
                 auctionId: auctionId,
@@ -77,6 +78,7 @@ const auctionService = () => {
                 if (err) { throw new Error(err); }
                 console.log('New Bid add ok (not first bid)');
             });
+
         } else if (price <= auction.minimumPrice || price <= currentBid) {
             console.log('in else if')
             return -1
@@ -85,11 +87,12 @@ const auctionService = () => {
             AuctionBid.create({
                 auctionId: auctionId,
                 customerId: customerId,
-                price: price
+                price: price,
             }, err => {
                 if (err) { throw new Error(err); }
                 console.log('New Bid add ok(first bid)');
             });
+            auction.auctionWinner = customerId;
         }
 
     };
