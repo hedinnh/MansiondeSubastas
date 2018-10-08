@@ -57,7 +57,7 @@ const auctionService = () => {
             docs.forEach(function (doc) {
                 AuctionBid.find({}).exec(function (err, bids) {
                     bids.forEach(function (bid) {
-                        if (currentBid < bid.price && auctionId === doc.id) {
+                        if (currentBid <= bid.price && auctionId === doc.id) {
                             currentBid = bid.price
                             console.log(bid.price, "<-auctionbid currentbid->", currentBid)
                         }
@@ -65,7 +65,7 @@ const auctionService = () => {
                 })
             })
         })
-        if (currentBid > auction.minimumPrice && price > currentBid && auction.auctionWinner !== undefined) {
+        if (currentBid >= auction.minimumPrice && price >= currentBid && auction.auctionWinner !== undefined) {
             AuctionBid.create({
                 auctionId: auctionId,
                 customerId: customerId,
@@ -74,6 +74,8 @@ const auctionService = () => {
                 if (err) { throw new Error(err); }
                 console.log('New Bid add ok (not first bid)');
             });
+        } else if (price <= auction.minimumPrice || price <= currentBid) {
+            return -1
         }
         if (auction.auctionWinner === undefined) {
             AuctionBid.create({
