@@ -32,7 +32,6 @@ const auctionService = () => {
             return 1;
         }
         return auction.auctionWinner;
-
     };
 
     const createAuction = (auction) => {
@@ -46,28 +45,32 @@ const auctionService = () => {
         });
     };
 
-    const getAuctionBidsWithinAuction = auctionId => {
-        // Your implementation goes here
+    const getAuctionBidsWithinAuction = async auctionId => {
+        let foundOrNot = true;
+        let ret = await AuctionBid.find({ auctionId: auctionId }, (err, bids) => {
+            if (err) {
+                console.log('No bid found');
+                foundOrNot = false;
+            }
+        }).catch(err => [err]);
+        if (!foundOrNot) {
+            return -1;
+        }
+        return ret;
     };
+
+
 
     const placeNewBid = async (auctionId, customerId, price) => {
         let auction = await getAuctionById(auctionId);
+        let bids = await getAuctionBidsWithinAuction(auctionId);
+
         let currentBid = 0;
-        await Auction.find({}).exec(function (err, docs) {
-           docs.forEach(function (doc) {
-                AuctionBid.find({}).exec(function (err, bids) {
-                    bids.forEach(function (bid) {
-                        if (currentBid <= bid.price && auctionId === doc.id) {
-                            currentBid = bid.price
-                            console.log(bid.price, "<-auctionbid currentbid->", currentBid)
-                        }
-                    })
-                })
-            })
-        })
-        setTimeout(() => console.log(currentBid), 3000);
-        console.log(price, 'price')
-        console.log(auction.minimumPrice, 'auction min price')
+        for (const bid of bids) {
+            if (currentBid <= bid.price && auctionId === auction.id) {
+                currentBid = bid.price
+            }
+        }
         console.log(currentBid, 'currentbid') // WHY THE FUCK IS THIS STILL 0 :D 
         if (currentBid > auction.minimumPrice && price > currentBid && auction.auctionWinner !== undefined) {
             AuctionBid.create({
@@ -77,10 +80,12 @@ const auctionService = () => {
             }, err => {
                 if (err) { throw new Error(err); }
                 console.log('New Bid add ok (not first bid)');
+                console.log(auction, 'new bid added, not first bid')
             });
 
         } else if (price <= auction.minimumPrice || price <= currentBid) {
-            console.log('in else if')
+            console.log('in else if, no bid added')
+            console.log(auction, ' auction in else if no bid added')
             return -1
         }
         if (auction.auctionWinner === undefined) {
@@ -92,7 +97,13 @@ const auctionService = () => {
                 if (err) { throw new Error(err); }
                 console.log('New Bid add ok(first bid)');
             });
-            auction.auctionWinner = customerId;
+            console.log(await getAuctionById(auctionId), ' if auctionwinner is undefined')
+
+            //auction.auctionWinner = customerId;
+            await Auction.findOneAndUpdate({ id: auctionId }, { $set: { auctionWinner: customerId } }, function (err, doc) {
+                console.log(doc);
+            });
+            console.log(await getAuctionById(auctionId), ' if auctionwinner is undefined')
         }
 
     };

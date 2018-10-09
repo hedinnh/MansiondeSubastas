@@ -69,6 +69,12 @@ router.get('/auctions', async (req, res) => {
     return res.status(200).send(ret);
 });
 
+router.get('/auctions/temp/:id', async (req, res) => {
+    const { id } = req.params;
+    let ret = await auctionService.getAuctionBidsWithinAuction(id);
+    return res.status(200).send(ret);
+});
+
 router.get('/auctions/:id', async (req, res) => {
     const { id } = req.params;
     let auction = await auctionService.getAuctionById(id);
