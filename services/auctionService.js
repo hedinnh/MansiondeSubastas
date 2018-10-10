@@ -27,7 +27,7 @@ const auctionService = () => {
     const getAuctionWinner = async auctionId => {
         let auction = await getAuctionById(auctionId);
         console.log(auction);
-        if(auction === -1) {return 0};
+        if (auction === -1) { return 0 };
         if (auction.auctionWinner === undefined) {
             return -1;
         }
@@ -67,14 +67,14 @@ const auctionService = () => {
     const placeNewBid = async (auctionId, customerId, price) => {
         let auction = await getAuctionById(auctionId);
         let bids = await getAuctionBidsWithinAuction(auctionId);
-
+        if (auction === -1) { return -2 };
         let currentBid = 0;
         for (const bid of bids) {
             if (currentBid <= bid.price && auctionId === auction.id) {
                 currentBid = bid.price
             }
         }
-        
+
         if (currentBid > auction.minimumPrice && price > currentBid && auction.auctionWinner !== undefined) {
             AuctionBid.create({
                 auctionId: auctionId,
@@ -118,7 +118,7 @@ const auctionService = () => {
                     doc.save();
                 });
             });
- 
+
             console.log(await getAuctionById(auctionId), ' if auctionwinner is undefined')
         }
 
