@@ -1,4 +1,4 @@
-const { Customer, connection } = require('../data/db');
+const { AuctionBid, Customer, connection } = require('../data/db');
 
 const customerService = () => {
     const getAllCustomers = () => {
@@ -10,20 +10,23 @@ const customerService = () => {
 
     const getCustomerById = async (id) => {
         let foundOrNot = true;
-        let ret = await Customer.findById(id, (err, customer) => {
-            if(err) {
+        let ret = await Customer.findById(id, (err) => {
+            if (err) {
                 console.log('Customer not found');
                 foundOrNot = false;
             }
         }).catch(err => [err]);
-        if(!foundOrNot) {
+        if (!foundOrNot) {
             return -1
         }
         return ret;
     };
 
-    const getCustomerAuctionBids = (customerId) => {
-        // Your implementation goes here
+    const getCustomerAuctionBids = async (customerId) => {
+        let ret = await AuctionBid.find({ customerId: customerId }, (err) => {
+            if (err) { throw new Error(err); }
+        });
+        return ret;
     };
 
     const createCustomer = (customer) => {

@@ -3,7 +3,6 @@ const bodyParser = require('body-parser');
 const app = express();
 const router = express.Router();
 
-
 const artistService = require('./services/artistService');
 const artService = require('./services/artService');
 const customerService = require('./services/customerService');
@@ -50,12 +49,17 @@ router.get('/customers', async (req, res) => {
     return res.status(200).send(ret);
 });
 
+router.get('/customers/:id/auction-bids', async (req, res) => {
+    const { id } = req.params;
+    let ret = await customerService.getCustomerAuctionBids(id);
+    return res.status(200).send(ret);
+});
+
 router.get('/customers/:id', async (req, res) => {
     const { id } = req.params;
     let customer = await customerService.getCustomerById(id);
     if (customer === -1) { return res.status(404).send(); }
     return res.status(200).send(customer).json();
-
 });
 
 router.post('/customers', (req, res) => {
@@ -69,19 +73,12 @@ router.get('/auctions', async (req, res) => {
     return res.status(200).send(ret);
 });
 
-router.get('/auctions/temp/:id', async (req, res) => {
-    const { id } = req.params;
-    let ret = await auctionService.getAuctionBidsWithinAuction(id);
-    return res.status(200).send(ret);
-});
-
 router.get('/auctions/:id', async (req, res) => {
     const { id } = req.params;
     let auction = await auctionService.getAuctionById(id);
     if (auction === -1) { return res.status(404).send(); }
     return res.status(200).send(auction).json();
 });
-
 
 router.post('/auctions', async (req, res) => {
     const { body } = req;
@@ -92,10 +89,10 @@ router.post('/auctions', async (req, res) => {
 router.post('/auctions/:id/bids', async (req, res) => {
     const { body } = req;
     const { id } = req.params;
-    const price  = body.price;
+    const price = body.price;
     const customerId = body.customerId;
     let ret = await auctionService.placeNewBid(id, customerId, price);
-    if(ret === -1) {
+    if (ret === -1) {
         return res.status(412).send();
     }
     return res.status(201).send();
@@ -104,13 +101,12 @@ router.post('/auctions/:id/bids', async (req, res) => {
 router.get('/auctions/:id/winner', async (req, res) => {
     const { id } = req.params;
     let ret = await auctionService.getAuctionWinner(id);
-    if(ret === -1) {
+    if (ret === -1) {
         return res.status(200).send('This auction has no bids');
-    } else if(ret === 1) {
+    } else if (ret === 1) {
         return res.status(409).send();
-    } else if(ret === 2) {
-        return res.status(200).send(ret);
     }
+    return res.status(200).send(ret);
 });
 
 app.use(bodyParser.json());
