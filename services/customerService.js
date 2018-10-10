@@ -23,6 +23,8 @@ const customerService = () => {
     };
 
     const getCustomerAuctionBids = async (customerId) => {
+        let customerExists = await getCustomerById(customerId);
+        if(customerExists === -1) {return -1};       
         let ret = await AuctionBid.find({ customerId: customerId }, (err) => {
             if (err) { throw new Error(err); }
         });

@@ -52,6 +52,7 @@ router.get('/customers', async (req, res) => {
 router.get('/customers/:id/auction-bids', async (req, res) => {
     const { id } = req.params;
     let ret = await customerService.getCustomerAuctionBids(id);
+    if (ret === -1) { return res.status(404).send(); }
     return res.status(200).send(ret);
 });
 
@@ -101,6 +102,7 @@ router.post('/auctions/:id/bids', async (req, res) => {
 router.get('/auctions/:id/winner', async (req, res) => {
     const { id } = req.params;
     let ret = await auctionService.getAuctionWinner(id);
+    if(ret === 0) {return res.status(404).send();}
     if (ret === -1) {
         return res.status(200).send('This auction has no bids');
     } else if (ret === 1) {

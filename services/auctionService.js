@@ -1,6 +1,6 @@
 const { Auction, Customer, AuctionBid, connection } = require('../data/db');
 
-const customerService = require('.customerService');
+//const customerService = require('.customerService');
 
 const auctionService = () => {
     const getAllAuctions = () => {
@@ -27,6 +27,7 @@ const auctionService = () => {
     const getAuctionWinner = async auctionId => {
         let auction = await getAuctionById(auctionId);
         console.log(auction);
+        if(auction === -1) {return 0};
         if (auction.auctionWinner === undefined) {
             return -1;
         }
@@ -129,8 +130,7 @@ const auctionService = () => {
         getAuctionWinner,
         createAuction,
         getAuctionBidsWithinAuction,
-        placeNewBid,
-        getCustomerBids
+        placeNewBid
     };
 };
 
