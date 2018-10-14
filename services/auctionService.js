@@ -1,7 +1,5 @@
 const { Auction, Customer, AuctionBid, connection } = require('../data/db');
 
-//const customerService = require('.customerService');
-
 const auctionService = () => {
     const getAllAuctions = () => {
         let ret = Auction.find({}, (err, artist) => {
@@ -26,16 +24,13 @@ const auctionService = () => {
 
     const getAuctionWinner = async auctionId => {
         let auction = await getAuctionById(auctionId);
-        console.log(auction);
         if (auction === -1) { return 0 };
         if (auction.auctionWinner === undefined) {
             return -1;
         }
-        //console.log(Date.now(), auction.endDate)
         if (auction.endDate < Date.now()) {
             return 1;
         }
-        //customerService.get
         return auction.auctionWinner;
     };
 
@@ -46,7 +41,6 @@ const auctionService = () => {
             endDate: auction.endDate
         }, err => {
             if (err) { throw new Error(err); }
-            console.log('Auction add ok');
         });
     };
 
@@ -54,7 +48,6 @@ const auctionService = () => {
         let foundOrNot = true;
         let ret = await AuctionBid.find({ auctionId: auctionId }, (err) => {
             if (err) {
-                console.log('No bid found');
                 foundOrNot = false;
             }
         }).catch(err => [err]);
@@ -82,14 +75,6 @@ const auctionService = () => {
                 price: price
             }, err => {
                 if (err) { throw new Error(err); }
-                console.log('New Bid add ok (not first bid)');
-                // Auction.findOneAndUpdate(auctionId, { $set: { auctionWinner: customerId } }, {new: true},async function (err, doc) {
-                //     if (err) { console.log(err); }
-                //     doc.auctionWinner = customerId;
-                //     doc.save();
-                //     console.log(doc.auctionWinner)
-                //     console.log(doc, 'doc here')
-                // });
                 Auction.findById(auctionId, async function (err, doc) {
                     if (err) { console.log(err); }
                     doc.auctionWinner = customerId;
@@ -98,7 +83,6 @@ const auctionService = () => {
             });
 
         } else if (price <= auction.minimumPrice || price <= currentBid) {
-            console.log('in else if, no bid added')
             return -1;
         }
         if (auction.auctionWinner === undefined) {
@@ -108,20 +92,13 @@ const auctionService = () => {
                 price: price,
             }, err => {
                 if (err) { throw new Error(err); }
-                console.log('New Bid add ok(first bid)');
-                // Auction.findOneAndUpdate(auctionId, { $set: { auctionWinner: customerId } }, function (err, doc) {
-                //     console.log(doc)
-                // });
                 Auction.findById(auctionId, async function (err, doc) {
                     if (err) { console.log(err); }
                     doc.auctionWinner = customerId;
                     doc.save();
                 });
             });
-
-            console.log(await getAuctionById(auctionId), ' if auctionwinner is undefined')
         }
-
     };
 
     return {

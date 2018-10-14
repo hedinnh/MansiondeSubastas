@@ -2,7 +2,7 @@ const { Art, connection } = require('../data/db')
 
 const artService = () => {
     const getAllArts = () => {
-        let ret = Art.find({}, (err, arts) => {
+        let ret = Art.find({}, (err) => {
             if (err) { throw new Error(err); }
         });
         return ret;
@@ -10,7 +10,7 @@ const artService = () => {
 
     const getArtById = async (id) => {
         let foundOrNot = true;
-        let ret = await Art.findById(id, (err, artist) => {
+        let ret = await Art.findById(id, (err) => {
             if (err) {
                 console.log('Art not found');
                 foundOrNot = false;
